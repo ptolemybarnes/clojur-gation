@@ -1,4 +1,4 @@
-# spanish-grammar-clj
+# clojugation
 
 FIXME: description
 
