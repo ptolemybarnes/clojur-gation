@@ -18,7 +18,7 @@
 
 (def take-one (partial take 1))
 
-(def pronouns ["yo" "tú" "él/ella/usted" "nosotros" "vosotros" "ustedes"])
+(def pronouns ["yo" "tú" "él/ella/usted" "nosotros" "vosotros" "ellos/ellas/ustedes"])
 (def blanks (repeat (count pronouns) "__________"))
 (defn nth-safe [idx collection] (get (into-array collection) idx))
 
@@ -35,34 +35,28 @@
    (cli verb-and-conjugations [])
    )
   ([verb-and-conjugations answers]
-  ; PRESENT
-  ; for returns lazy seq so have to force evaluation with doall
-  (def present (for [[infinitive conjugations] verb-and-conjugations]
+
+  (doall (for [[infinitive conjugations] verb-and-conjugations]
     (println (str "Conjugate: " (name infinitive)))
     ))
-  (doall present)
   (println "Enter conjugations:")
   (println (apply str (present-pronouns-with answers)))
 
-  ; GET ANSWER
   (let [
-        conjugations (second (first verb-and-conjugations))
         input (read-line)
+        conjugations (second (first verb-and-conjugations))
+        response (answer conjugations answers input)
+        is-correct (first response)
+        new-answers (second response)
         ]
-    (let [
-          response (answer conjugations answers input)
-          is-correct (first response)
-          new-answers (second response)
-          ]
       (if is-correct (println "Correct!"))
-      (cli verb-and-conjugations new-answers)
+      (if-not (= (count conjugations) (count new-answers)) (cli verb-and-conjugations new-answers))
       )
     )
-  ))
+  )
 
 (def run (comp cli take-one seq json/read-json slurp))
 
 (defn -main []
   (print (run "./resources/conjugations.json"))
   )
-
